@@ -3,12 +3,12 @@ from app.mock_products import mock_products, add_to_stock
 
 app = Flask(__name__)
 
-
+#test to see if server is working
 @app.route('/')
 def home():
     return jsonify({"message": "Welcome to Inventory Management app"})
 
-
+#route for listing products
 @app.route('/inventory', methods=["GET"])
 def inventory():
     items = [
@@ -17,6 +17,7 @@ def inventory():
     ]
     return jsonify(items)
 
+#route to get a particular product
 @app.route('/inventory/<string:id>', methods=['GET'])
 def get_inventory_id(id):
     for p in mock_products:
@@ -25,6 +26,7 @@ def get_inventory_id(id):
             return jsonify(item), 200
     return jsonify({"message": "No product found"}), 404
 
+#route to create a new entry
 @app.route('/inventory/add', methods=['POST'])
 def add_new_product():
     data = request.get_json()
@@ -32,7 +34,7 @@ def add_new_product():
     if not data or 'name' not in data:
         return jsonify({"error": "Product name is required"}), 400
     
-    new_p_id = max((int(p['id']) for p in mock_products), default=0) + 1
+    new_p_id = max((int(p['id']) for p in mock_products if p['id'].isdigit()), default=0) + 1
     new_product = {
         "id": f"{new_p_id}",
         "name": data['name'],
@@ -40,7 +42,8 @@ def add_new_product():
     }
     mock_products.append(new_product)
     return jsonify(new_product), 201
-    
+
+#route to add stock to an existing product    
 @app.route('/inventory/update/<string:id>/<int:qty>', methods=['PATCH'])
 def update_stock(id, qty):
     added_item = add_to_stock(id, qty)
@@ -51,6 +54,7 @@ def update_stock(id, qty):
         
     return jsonify({"error": "Product not found"}), 404
 
+#delete a product
 @app.route('/inventory/delete/<string:id>', methods=['DELETE'])
 def delete_product(id):
     global mock_products
@@ -58,4 +62,5 @@ def delete_product(id):
     if not p:
         return("Product not found", 404)
     mock_products = [p for p in mock_products if p["id"] != id]
-    return("Product deleted successfully", 204)
+    return("", 204)
+
