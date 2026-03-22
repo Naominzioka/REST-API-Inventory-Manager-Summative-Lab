@@ -43,7 +43,7 @@ def add_new_product():
     mock_products.append(new_product)
     return jsonify(new_product), 201
 
-#route to add stock to an existing product    
+#route to update stock of an existing product    
 @app.route('/inventory/update/<string:id>/<int:qty>', methods=['PATCH'])
 def update_stock(id, qty):
     added_item = add_to_stock(id, qty)
