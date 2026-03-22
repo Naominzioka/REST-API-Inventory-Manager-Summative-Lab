@@ -16,7 +16,7 @@ def get_mock_data(category="snacks", limit=5):
             # Populate the global list
             mock_products = [
                 {
-                    "count": 0,
+                    "count": 1,
                     "id": p.get("code"),
                     "name": p.get("product_name", "Unknown"),
                     "brand": p.get("brands", "Generic"),
