@@ -3,11 +3,16 @@ import requests
 
 #configuration
 BASE_URL = "http://127.0.0.1:5000"
+#headers for all requests to the backend
+DEFAULT_HEADERS = {
+    "Accept": "application/json",
+    "User-Agent": "InventoryManagerCLI/1.0",
+}
 
 #view inventory details
 def view_products(cli_context, args):
     try:
-        response = requests.get(f"{BASE_URL}/inventory")
+        response = requests.get(f"{BASE_URL}/inventory", headers=DEFAULT_HEADERS)
         if response.status_code == 200:
             data = response.json()
             print(tabulate(data, headers="keys", tablefmt="grid"))
@@ -24,7 +29,8 @@ def add_product(cli_context, args):
         }
         response = requests.post(
             f"{BASE_URL}/inventory/add",
-            json=payload
+            json=payload,
+            headers={**DEFAULT_HEADERS, "Content-Type": "application/json"}
             )
         if response.status_code == 201:
             print(f"New product '{args.name}' added successfully. ")
@@ -37,7 +43,7 @@ def add_product(cli_context, args):
 def restock_product(cli_context, args):
     try:
         url = f"{BASE_URL}/inventory/update/{args.product_id}/{args.quantity}"
-        response = requests.patch(url)
+        response = requests.patch(url, headers=DEFAULT_HEADERS)
         if response.status_code == 200:
             data = response.json()
             print(f"Success: {data['message']}") 
@@ -51,7 +57,7 @@ def restock_product(cli_context, args):
 def delete_product(cli_context, args):
     try:
         url = f'{BASE_URL}/inventory/delete/{args.product_id}'
-        response = requests.delete(url)
+        response = requests.delete(url, headers=DEFAULT_HEADERS)
         if response.status_code == 204:
             print(f"Successfully deleted product {args.product_id}")
             view_products(cli_context, args)
@@ -71,7 +77,7 @@ def fetch_product(cli_context, args):
     
     try:
         url = f"{BASE_URL}/inventory/{args.barcode}"
-        response = requests.get(url)
+        response = requests.get(url, headers=DEFAULT_HEADERS)
         
         if response.status_code == 200:
             data = response.json()

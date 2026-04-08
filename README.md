@@ -187,6 +187,7 @@ pipenv install <package-name>
 - **Data is stored in memory only.** All inventory data resets when the Flask server restarts.
 - Ensure the Flask server is running before using the CLI client.
 - The OpenFoodFacts fetch runs once on server startup. To re-fetch, restart the server.
+- **Product IDs are strings across the project.** CLI commands and backend routes both treat IDs as string values (for example, OpenFoodFacts barcodes).
 
 ---
 

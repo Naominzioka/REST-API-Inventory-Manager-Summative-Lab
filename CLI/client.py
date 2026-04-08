@@ -27,7 +27,7 @@ def main():
 
     #Restock
     restock = subparsers.add_parser("restock-product")
-    restock.add_argument("product_id", type=int)
+    restock.add_argument("product_id", type=str)
     restock.add_argument("quantity", type=int)
     restock.set_defaults(func=restock_product)
     
