@@ -3,6 +3,12 @@ import requests
 # Initialize the empty list
 mock_products = []
 
+# OpenFoodFacts headers for API requests
+OPEN_FOOD_FACTS_HEADERS = {
+    "User-Agent": "InventoryManagerCLI/1.0 (student-project)",
+    "Accept": "application/json",
+}
+
 def get_mock_data(category="snacks", limit=5):
     #modify the mock products list from inside this function
     global mock_products
@@ -10,7 +16,7 @@ def get_mock_data(category="snacks", limit=5):
     url = f"https://world.openfoodfacts.net/category/{category}.json"
     
     try:
-        response = requests.get(url, timeout=10)
+        response = requests.get(url, headers=OPEN_FOOD_FACTS_HEADERS, timeout=10)
         if response.status_code == 200:
             data = response.json()
             # Populate the global list
