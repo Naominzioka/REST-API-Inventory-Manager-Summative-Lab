@@ -44,6 +44,38 @@ def test_add_new_product(client):
     assert response.status_code == 201
     assert response.get_json()['id'] == "101"
 
+
+def test_add_new_product_missing_name(client):
+    response = client.post('/inventory/add', json={})
+
+    assert response.status_code == 400
+    assert response.get_json()['error'] == "Product name is required"
+
+
+def test_add_new_product_blank_name(client):
+    response = client.post('/inventory/add', json={"name": "   "})
+
+    assert response.status_code == 400
+    assert response.get_json()['error'] == "Product name cannot be empty"
+
+
+def test_add_new_product_invalid_json(client):
+    response = client.post(
+        '/inventory/add',
+        data='{"name": ',
+        content_type='application/json',
+    )
+
+    assert response.status_code == 400
+    assert response.get_json()['error'] == "Product name is required"
+
+
+def test_update_stock_invalid_quantity(client):
+    response = client.patch('/inventory/update/100/0')
+
+    assert response.status_code == 400
+    assert response.get_json()['error'] == "Quantity must be greater than 0"
+
 def test_delete_product(client):
     response = client.delete('/inventory/delete/100')
     assert response.status_code == 204
