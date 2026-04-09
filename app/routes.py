@@ -39,15 +39,19 @@ def get_inventory_id(id):
 #route to create a new entry
 @app.route('/inventory/add', methods=['POST'])
 def add_new_product():
-    data = request.get_json()
-    
-    if not data or 'name' not in data:
+    data = request.get_json(silent=True)
+
+    if not isinstance(data, dict) or 'name' not in data:
         return jsonify({"error": "Product name is required"}), 400
+
+    product_name = data.get('name', '')
+    if not isinstance(product_name, str) or not product_name.strip():
+        return jsonify({"error": "Product name cannot be empty"}), 400
     
     new_p_id = max((int(p['id']) for p in mock_products if p['id'].isdigit()), default=0) + 1
     new_product = {
         "id": f"{new_p_id}",
-        "name": data['name'],
+        "name": product_name.strip(),
         "count": 1,
     }
     mock_products.append(new_product)
@@ -56,6 +60,9 @@ def add_new_product():
 #route to update stock of an existing product    
 @app.route('/inventory/update/<string:id>/<int:qty>', methods=['PATCH'])
 def update_stock(id, qty):
+    if qty <= 0:
+        return jsonify({"error": "Quantity must be greater than 0"}), 400
+
     added_item = add_to_stock(id, qty)
     if added_item:
         return jsonify({"message": f"Added {qty} units",
