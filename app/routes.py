@@ -1,5 +1,5 @@
 from flask import Flask, jsonify, request
-from app.mock_products import mock_products, add_to_stock
+from app.mock_products import mock_products, add_to_stock, fetch_product_by_barcode
 
 app = Flask(__name__)
 
@@ -24,6 +24,16 @@ def get_inventory_id(id):
         if p['id'] == id:
             item = {'id': p['id'], 'name': p['name'], 'count': p['count']}
             return jsonify(item), 200
+
+    fetched_product = fetch_product_by_barcode(id)
+    if fetched_product:
+        item = {
+            'id': fetched_product['id'],
+            'name': fetched_product['name'],
+            'count': fetched_product['count'],
+        }
+        return jsonify(item), 200
+
     return jsonify({"message": "No product found"}), 404
 
 #route to create a new entry

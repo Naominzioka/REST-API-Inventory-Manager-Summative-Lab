@@ -67,7 +67,7 @@ python server.py
 ```
 
 The server will start at `http://127.0.0.1:5000`.  
-On startup, it automatically fetches 5 snack products from OpenFoodFacts to populate the inventory.
+On startup, it automatically fetches 5 snack products from OpenFoodFacts to populate the inventory. If a barcode is requested later and is not already in inventory, the backend also performs a live OpenFoodFacts lookup and adds that product to the in-memory inventory.
 
 ### 2. Use the CLI Client
 
@@ -127,7 +127,7 @@ Run all commands from the `CLI/` directory with `python client.py`.
 | `python client.py view-products`              | Display the full inventory table         |
 | `python client.py add-product <name>`         | Add a new product by name                |
 | `python client.py restock-product <id> <qty>` | Increase stock for a product by ID       |
-| `python client.py fetch-product <barcode>`    | Look up a product by barcode/ID          |
+| `python client.py fetch-product <barcode>`    | Fetch a product by barcode from OpenFoodFacts through the backend and add it to inventory if found |
 | `python client.py delete-product <id>`        | Remove a product from inventory          |
 
 ### CLI Examples
@@ -155,9 +155,9 @@ python client.py delete-product 2
 
 ### Backend (`app/`)
 
-- **`mock_products.py`** — On import, calls `get_mock_data()` which fetches 5 products from the OpenFoodFacts `snacks` category and stores them in a global `mock_products` list. The `add_to_stock()` helper updates product quantities.
+- **`mock_products.py`** — On import, calls `get_mock_data()` which fetches 5 products from the OpenFoodFacts `snacks` category and stores them in a global `mock_products` list. It also includes `fetch_product_by_barcode()`, which performs a live OpenFoodFacts lookup for a missing barcode and appends the result to the same in-memory inventory. The `add_to_stock()` helper updates product quantities.
 
-- **`routes.py`** — Defines all Flask REST API routes. Routes read from and write to the `mock_products` list in memory.
+- **`routes.py`** — Defines all Flask REST API routes. Routes read from and write to the `mock_products` list in memory, and the single-product route can trigger a live OpenFoodFacts fetch when a requested barcode is not already stored.
 
 ### CLI (`CLI/`)
 
@@ -186,7 +186,7 @@ pipenv install <package-name>
 
 - **Data is stored in memory only.** All inventory data resets when the Flask server restarts.
 - Ensure the Flask server is running before using the CLI client.
-- The OpenFoodFacts fetch runs once on server startup. To re-fetch, restart the server.
+- The OpenFoodFacts integration runs on server startup to seed inventory and can also run again when `fetch-product` requests a barcode that is not already stored.
 - **Product IDs are strings across the project.** CLI commands and backend routes both treat IDs as string values (for example, OpenFoodFacts barcodes).
 
 ---
