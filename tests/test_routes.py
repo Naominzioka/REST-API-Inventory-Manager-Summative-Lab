@@ -9,8 +9,9 @@ def client():
         test_data = [
             {"id": "100", "name": "Test Snack", "count": 1, "brand": "Generic"}
         ]
-        with patch('app.routes.mock_products', test_data):
-            yield client
+        with patch('app.routes.inventory_data.mock_products', test_data):
+            with patch('app.routes.inventory_data.persist_products', return_value=None):
+                yield client
 
 def test_inventory(client):
     response = client.get('/inventory')
@@ -25,7 +26,7 @@ def test_get_inventory_id(client):
     assert response.get_json()['name'] == "Test Snack"
 
 
-@patch('app.routes.fetch_product_by_barcode')
+@patch('app.routes.inventory_data.fetch_product_by_barcode')
 def test_get_inventory_id_fetches_external_when_missing(mock_fetch, client):
     mock_fetch.return_value = {
         "id": "555",

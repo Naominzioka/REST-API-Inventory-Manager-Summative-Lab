@@ -39,6 +39,20 @@ def test_restock_handler(mock_patch, capsys):
     captured = capsys.readouterr()
     assert "New total is 15" in captured.out
 
+
+@patch('CLI.handlers.requests.patch')
+def test_restock_handler_product_missing(mock_patch, capsys):
+    """Test restock-product message when product ID does not exist."""
+    mock_resp = MagicMock()
+    mock_resp.status_code = 404
+    mock_patch.return_value = mock_resp
+
+    args = MockArgs(product_id="999", quantity=5)
+    handlers.restock_product({}, args)
+
+    captured = capsys.readouterr()
+    assert "does not exist" in captured.out
+
 @patch('CLI.handlers.requests.delete')
 def test_delete_product_cli(mock_delete, capsys):
     """Test the delete-product CLI command success message."""

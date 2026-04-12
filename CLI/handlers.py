@@ -49,6 +49,10 @@ def restock_product(cli_context, args):
             print(f"Success: {data['message']}") 
             print(f"Product: {data['product']} restocked.")
             print(f"New total is {data['new_total']}")
+        elif response.status_code == 404:
+            print(f"Error: Product ID {args.product_id} does not exist.")
+        else:
+            print(f"Failed to restock. Server returned: {response.status_code}")
     except requests.exceptions.ConnectionError:
         print("Error: Could not connect to the backend.")
 
