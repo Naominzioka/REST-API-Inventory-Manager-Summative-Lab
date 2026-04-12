@@ -184,7 +184,7 @@ pipenv install <package-name>
 
 ## ⚠️ Notes
 
-- **Data is stored in memory only.** All inventory data resets when the Flask server restarts.
+- Inventory is persisted to a local JSON store (`app/mock_products_store.json`), so add/update/delete changes are retained across server restarts.
 - Ensure the Flask server is running before using the CLI client.
 - The OpenFoodFacts integration runs on server startup to seed inventory and can also run again when `fetch-product` requests a barcode that is not already stored.
 - **Product IDs are strings across the project.** CLI commands and backend routes both treat IDs as string values (for example, OpenFoodFacts barcodes).

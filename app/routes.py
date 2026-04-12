@@ -1,5 +1,5 @@
 from flask import Flask, jsonify, request
-from app.mock_products import mock_products, add_to_stock, fetch_product_by_barcode
+from app import mock_products as inventory_data
 
 app = Flask(__name__)
 
@@ -13,19 +13,19 @@ def home():
 def inventory():
     items = [
         {'id': p['id'], 'name': p['name'], 'count': p['count']}
-        for p in mock_products
+        for p in inventory_data.mock_products
     ]
     return jsonify(items)
 
 #route to get a particular product
 @app.route('/inventory/<string:id>', methods=['GET'])
 def get_inventory_id(id):
-    for p in mock_products:
+    for p in inventory_data.mock_products:
         if p['id'] == id:
             item = {'id': p['id'], 'name': p['name'], 'count': p['count']}
             return jsonify(item), 200
 
-    fetched_product = fetch_product_by_barcode(id)
+    fetched_product = inventory_data.fetch_product_by_barcode(id)
     if fetched_product:
         item = {
             'id': fetched_product['id'],
@@ -48,13 +48,7 @@ def add_new_product():
     if not isinstance(product_name, str) or not product_name.strip():
         return jsonify({"error": "Product name cannot be empty"}), 400
     
-    new_p_id = max((int(p['id']) for p in mock_products if p['id'].isdigit()), default=0) + 1
-    new_product = {
-        "id": f"{new_p_id}",
-        "name": product_name.strip(),
-        "count": 1,
-    }
-    mock_products.append(new_product)
+    new_product = inventory_data.add_new_product(product_name)
     return jsonify(new_product), 201
 
 #route to update stock of an existing product    
@@ -63,7 +57,7 @@ def update_stock(id, qty):
     if qty <= 0:
         return jsonify({"error": "Quantity must be greater than 0"}), 400
 
-    added_item = add_to_stock(id, qty)
+    added_item = inventory_data.add_to_stock(id, qty)
     if added_item:
         return jsonify({"message": f"Added {qty} units",
                        "product": added_item['name'],
@@ -74,10 +68,7 @@ def update_stock(id, qty):
 #delete a product
 @app.route('/inventory/delete/<string:id>', methods=['DELETE'])
 def delete_product(id):
-    global mock_products
-    p = next((p for p in mock_products if p["id"] == id), None)
-    if not p:
-        return("Product not found", 404)
-    mock_products = [p for p in mock_products if p["id"] != id]
-    return("", 204)
+    if not inventory_data.delete_product_by_id(id):
+        return jsonify({"error": "Product not found"}), 404
+    return ("", 204)
 
